@@ -1,0 +1,63 @@
+Install Nagios
+
+1. install apache and php
+    yum install httpd php 
+	
+2. Install gcc, make
+   yum install gcc
+
+3. dowload nagios core from nagios.org
+
+4. extract the tar.gz file: tar xzvf nagios.tar.gz
+
+5. change into the nagios folder
+
+6. Create nagios user, nagios and nagcmd group
+
+7. run './configure --prefix=/opt/nagios'
+
+8. Run 'make all' 
+
+9. Run 'make install && make install-init &&make install-config && make install-webconf'
+
+10. Install semanage
+   yum install policycoreutils-python
+
+11. Change the /opt/nagios/share and /opt/nagios/sbin selinux context type for httpd access
+    semanage fcontext -a -t httpd_sys_content_t "/opt/nagios/share(/.*)?"
+	semanage fcontext -a -t httpd_sys_script_exec_t "/opt/nagios/sbin(/.*)?"
+	restorecon -R -v /opt/nagios/share/
+    
+12. Verify the new context type   
+    ls -lZ /opt/nagios/share
+	ls -lZ	/opt/nagios/sbin
+	
+13. Make a new directory named 'rw' in /opt/nagios/var
+    mkdir /opt/nagios/var/rw
+
+14. Change ownership of rw to nagios
+    chown -R nagios:nagios /opt/nagios/var/rw
+	
+15. Create a nagiosadmin user for web access
+    htpasswd -c /opt/nagios/etc/htpasswd.users nagiosadmin
+	
+16. restart httpd and nagios
+    systemctl restart httpd
+	systemctl restart nagios
+
+17. start nagios
+    /opt/nagios/bin/nagios -d /opt/nagios/etc/nagios.cfg
+	or 
+	systemctl start nagios
+
+18. Open web browser and go to http://<server>/nagios and enter your nagiosadmin credential
+
+19. Create the hosts and services config files, then edit the /opt/nagios/etc/nagios.cfg to inclue
+    those config files
+
+20. restart nagios 
+    kill -HUP <nagios_pid> or
+    systemctl restart nagios
+	
+21. That's it. Enjoy hacking.
+	
